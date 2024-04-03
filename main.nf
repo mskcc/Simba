@@ -15,7 +15,8 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { SIMBA  } from './workflows/simba'
+include { ARRAKIS  } from './workflows/Arrakis/workflows/arrakis.nf'
+include { LOKI  } from './workflows/loki/workflows/loki.nf'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_simba_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_simba_pipeline'
 
@@ -85,9 +86,23 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    MSKCC_SIMBA (
+
+    includeConfig "workflows/Arrakis/conf/test_juno.config"
+
+
+    ARRAKIS (
         PIPELINE_INITIALISATION.out.samplesheet
     )
+
+    includeConfig "workflows/loki/conf/test_juno.config"
+
+    params.input = "${params.outdir}/realignment_bams_samplesheet.csv"
+
+    LOKI {
+        ARRAKIS.out.samplesheet
+    }
+
+
 
     //
     // SUBWORKFLOW: Run completion tasks
