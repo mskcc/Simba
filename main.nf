@@ -15,8 +15,8 @@ nextflow.enable.dsl = 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { ARRAKIS  } from './workflows/Arrakis/workflows/arrakis.nf'
-include { LOKI  } from './workflows/loki/workflows/loki.nf'
+include { ARRAKIS  } from './workflows/arrakis/workflows/arrakis.nf'
+include { CNV } from './workflows/loki/subworkflows/local/cnv'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_simba_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_simba_pipeline'
 
@@ -94,13 +94,23 @@ workflow {
         PIPELINE_INITIALISATION.out.samplesheet
     )
 
+    // Run Loki workflow
+
     includeConfig "workflows/loki/conf/test_juno.config"
 
-    params.input = "${params.outdir}/realignment_bams_samplesheet.csv"
+    input_bam_channel = create_bam_channel(ARRAKIS.out.normal_bam, ARRAKIS.out.tumor_bam)
 
-    LOKI {
-        ARRAKIS.out.samplesheet
-    }
+    CNV (
+        input_bam_channel
+    )
+
+
+
+    //params.input = "${params.outdir}/realignment_bams_samplesheet.csv"
+
+    //LOKI {
+    //    ARRAKIS.out.samplesheet
+    //}
 
 
 
@@ -116,6 +126,24 @@ workflow {
         params.hook_url,
         MSKCC_SIMBA.out.multiqc_report
     )
+}
+
+def create_bam_channel(normal, tumor) {
+    tumor_channel = tumor
+        .map{
+            new Tuple(it[0].id,it)
+            }
+    normal_channel = normal
+        .map{
+            new Tuple(it[0].id,it)
+            }
+    mergedWithKey = tumor_channel
+        .join(normal_channel)
+    merged = mergedWithKey
+        .map{
+            new Tuple(it[1][0],[ it[1][1], it[2][1] ], [ it[1][2],it[2][2] ])
+        }
+    return merged
 }
 
 /*
