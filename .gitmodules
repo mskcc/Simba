@@ -1,3 +1,6 @@
 [submodule "workflows/loki"]
 	path = workflows/loki
 	url = https://github.com/mskcc/loki
+[submodule "workflows/arrakis"]
+	path = workflows/arrakis
+	url = https://github.com/mskcc/arrakis
