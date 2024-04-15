@@ -1,33 +1,65 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/mskcc/simba/master/assets/schema_input.json",
-    "title": "mskcc/simba pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/mskcc/arrakis/master/assets/schema_input.json",
+    "title": "mskcc/arrakis pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {
         "type": "object",
         "properties": {
-            "sample": {
+            "pairId": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces",
-                "meta": ["id"]
+                "errorMessage": "PairId must be provided and cannot contain spaces",
+                "meta": [
+                    "id"
+                ]
             },
-            "fastq_1": {
+            "tumorBam": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "Tumor bam must be provided, cannot contain spaces and must have extension '.bam'"
             },
-            "fastq_2": {
+            "normalBam": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "Normal bam must be provided, cannot contain spaces and must have extension '.bam'"
+            },
+            "assay": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Type of assay of the samples provided",
+                "meta": [
+                    "assay"
+                ]
+            },
+            "normalType": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Type of the normal that is provided",
+                "meta": [
+                    "normalType"
+                ]
+            },
+            "bedFile": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.bed$",
+                "errorMessage": "Bed file for the regions to analyze"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": [
+            "pairId",
+            "tumorBam",
+            "normalBam",
+            "assay",
+            "normalType",
+            "bedFile"
+        ]
     }
 }
