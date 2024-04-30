@@ -1,5 +1,5 @@
 //
-// Subworkflow with functionality specific to the mskcc/simba pipeline
+// Subworkflow with functionality specific to the mskcc/arrakis pipeline
 //
 
 /*
@@ -83,21 +83,10 @@ workflow PIPELINE_INITIALISATION {
     Channel
         .fromSamplesheet("input")
         .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
+            meta, tumorBam, normalBam, bedFile ->
+                return [ meta, tumorBam, normalBam, bedFile]
         }
-        .groupTuple()
-        .map {
-            validateInputSamplesheet(it)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
+        .map { create_bam_channel(it)}
         .set { ch_samplesheet }
 
     emit:
@@ -120,7 +109,6 @@ workflow PIPELINE_COMPLETION {
     outdir          //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
     hook_url        //  string: hook URL for notifications
-    multiqc_report  //  string: Path to MultiQC report
 
     main:
 
@@ -131,7 +119,7 @@ workflow PIPELINE_COMPLETION {
     //
     workflow.onComplete {
         if (email || email_on_fail) {
-            completionEmail(summary_params, email, email_on_fail, plaintext_email, outdir, monochrome_logs, multiqc_report.toList())
+            completionEmail(summary_params, email, email_on_fail, plaintext_email, outdir, monochrome_logs, [])
         }
 
         completionSummary(monochrome_logs)
@@ -153,6 +141,50 @@ workflow PIPELINE_COMPLETION {
 def validateInputParameters() {
     genomeExistsError()
 }
+
+// Function to get list of [ meta, tumorBam, tumorBamIndex,  normalBam, normalBamIndex ]
+def create_bam_channel(input) {
+
+    // add path(s) of the bam files to the meta map
+    def (meta,tumorBam, normalBam, bedFile ) = input[0..3]
+    def bams = []
+    def tumorBai = "${tumorBam}.bai"
+    def normalBai = "${normalBam}.bai"
+    def tumorBaiAlt = "${tumorBam}".replaceAll('bam$', 'bai')
+    def normalBaiAlt = "${normalBam}".replaceAll('bam$', 'bai')
+
+    def foundTumorBai = ""
+    def foundNormalBai = ""
+
+
+    if (file(tumorBai).exists()) {
+        foundTumorBai = tumorBai
+    }
+    else{
+        if(file(tumorBaiAlt).exists()){
+            foundTumorBai = tumorBaiAlt
+        }
+        else{
+        exit 1, "ERROR: Please verify inputs -> Tumor BAI file does not exist!\n${row.tumorBam}"
+        }
+    }
+    if (file(normalBai).exists()) {
+        foundNormalBai = normalBai
+    }
+    else{
+        if(file(normalBaiAlt).exists()){
+            foundNormalBai = normalBaiAlt
+        }
+        else{
+            exit 1, "ERROR: Please verify inputs -> Normal BAI file does not exist!\n${row.normalBam}"
+        }
+    }
+
+
+    bams = [ meta, file(tumorBam), file(foundTumorBai), file(normalBam), file(foundNormalBai), file(bedFile) ]
+    return bams
+}
+
 
 //
 // Validate channels from input samplesheet

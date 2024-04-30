@@ -87,7 +87,7 @@ workflow {
     // WORKFLOW: Run main workflow
     //
 
-    includeConfig "workflows/Arrakis/conf/test_juno.config"
+
 
 
     ARRAKIS (
@@ -96,7 +96,7 @@ workflow {
 
     // Run Loki workflow
 
-    includeConfig "workflows/loki/conf/test_juno.config"
+
 
     input_bam_channel = create_bam_channel(ARRAKIS.out.normal_bam, ARRAKIS.out.tumor_bam)
 
@@ -123,8 +123,7 @@ workflow {
         params.plaintext_email,
         params.outdir,
         params.monochrome_logs,
-        params.hook_url,
-        MSKCC_SIMBA.out.multiqc_report
+        params.hook_url
     )
 }
 
@@ -141,7 +140,7 @@ def create_bam_channel(normal, tumor) {
         .join(normal_channel)
     merged = mergedWithKey
         .map{
-            new Tuple(it[1][0],[ it[1][1], it[2][1] ], [ it[1][2],it[2][2] ])
+            new Tuple(it[1][0], it[2][1],it[2][2], it[1][1],it[1][2],[],[])
         }
     return merged
 }
