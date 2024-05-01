@@ -17,6 +17,8 @@ nextflow.enable.dsl = 2
 
 include { ARRAKIS  } from './workflows/arrakis/workflows/arrakis.nf'
 include { CNV } from './workflows/loki/subworkflows/local/cnv'
+include { SIF } from './workflows/sif/workflows/sif.nf'
+include { ODIN } from './workflows/odin/workflows/odin.nf'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_simba_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_simba_pipeline'
 
@@ -101,6 +103,14 @@ workflow {
     input_bam_channel = create_bam_channel(ARRAKIS.out.normal_bam, ARRAKIS.out.tumor_bam)
 
     CNV (
+        input_bam_channel
+    )
+
+    SIF (
+        input_bam_channel
+    )
+
+    ODIN (
         input_bam_channel
     )
 
