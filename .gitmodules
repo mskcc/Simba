@@ -4,6 +4,9 @@
 [submodule "workflows/arrakis"]
 	path = workflows/arrakis
 	url = https://github.com/mskcc/arrakis
+[submodule "workflows/odin"]
+	path = workflows/odin
+	url = git@github.com:mskcc/odin.git
 [submodule "workflows/sif"]
 	path = workflows/sif
 	url = git@github.com:mskcc/sif.git
