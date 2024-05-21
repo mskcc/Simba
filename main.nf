@@ -216,7 +216,7 @@ workflow {
         ch_fasta_fai_ref,
         ch_exac_filter,
         ch_exac_filter_index,
-        input_bam_channel,
+        input_bam_channel_with_bed,
         ch_curated_bams
     )
 

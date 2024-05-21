@@ -57,9 +57,9 @@
             "pairId",
             "tumorBam",
             "normalBam",
+            "bedFile",
             "assay",
-            "normalType",
-            "bedFile"
+            "normalType"
         ]
     }
 }
