@@ -22,6 +22,19 @@
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
 
+### Cloning the repo
+
+This repository has submodules, make sure to update it with:
+
+```
+git submodule init
+git submodule update
+```
+
+After you clone the repo.
+
+### Setting up inputs
+
 First, prepare a samplesheet with your input data that looks as follows:
 
 `samplesheet.csv`:
@@ -31,6 +44,7 @@ pairId,tumorBam,normalBam,assay,normalType,bedFile
 foo_sample,foo_tumor.rg.md.bam,foo_normal.rg.md.bam,IMPACT505,MATCHED,foo_tumor.foo_normal.fci.bed
 bar_sample,bar_tumor.rg.md.bam,bar_normal.rg.md.bam,IMPACT505,MATCHED,bar_tumor.bar_normal.fci.bed
 ```
+### Running the pipeline
 
 Now, you can run the pipeline using:
 
