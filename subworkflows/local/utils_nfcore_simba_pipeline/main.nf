@@ -148,35 +148,44 @@ def create_bam_channel(input) {
     // add path(s) of the bam files to the meta map
     def (meta,tumorBam, normalBam, bedFile ) = input[0..3]
     def bams = []
-    def tumorBai = "${tumorBam}.bai"
-    def normalBai = "${normalBam}.bai"
-    def tumorBaiAlt = "${tumorBam}".replaceAll('bam$', 'bai')
-    def normalBaiAlt = "${normalBam}".replaceAll('bam$', 'bai')
+    def tumorBamName = tumorBam.name
+    def normalBamName = normalBam.name
+
+    def tumorBai = "${tumorBamName}.bai"
+    def normalBai = "${normalBamName}.bai"
+    def tumorBaiAlt = "${tumorBamName}".replaceAll('bam$', 'bai')
+    def normalBaiAlt = "${normalBamName}".replaceAll('bam$', 'bai')
 
     def foundTumorBai = ""
     def foundNormalBai = ""
 
+    tumorBaiPath = tumorBam.resolveSibling(tumorBai)
+    normalBaiPath = normalBam.resolveSibling(normalBai)
 
-    if (file(tumorBai).exists()) {
-        foundTumorBai = tumorBai
+    if (file(tumorBaiPath).exists()) {
+        foundTumorBai = tumorBaiPath
     }
     else{
-        if(file(tumorBaiAlt).exists()){
-            foundTumorBai = tumorBaiAlt
+        tumorBaiAltPath = tumorBam.resolveSibling(tumorBaiAlt)
+
+        if(file(tumorBaiAltPath).exists()){
+            foundTumorBai = tumorBaiAltPath
         }
         else{
-        exit 1, "ERROR: Please verify inputs -> Tumor BAI file does not exist!\n${row.tumorBam}"
+        exit 1, "ERROR: Please verify inputs -> Tumor BAI file does not exist!\n${tumorBam}"
         }
     }
-    if (file(normalBai).exists()) {
-        foundNormalBai = normalBai
+    if (file(normalBaiPath).exists()) {
+        foundNormalBai = normalBaiPath
     }
     else{
+        normalBaiAltPath = normalBam.resolveSibling(normalBaiAlt)
+
         if(file(normalBaiAlt).exists()){
-            foundNormalBai = normalBaiAlt
+            foundNormalBai = normalBaiAltPath
         }
         else{
-            exit 1, "ERROR: Please verify inputs -> Normal BAI file does not exist!\n${row.normalBam}"
+            exit 1, "ERROR: Please verify inputs -> Normal BAI file does not exist!\n${normalBam}"
         }
     }
 
